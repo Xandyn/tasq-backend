@@ -1,0 +1,10 @@
+
+# Python files
+*.pyc
+__pycache__
+
+# IntelliJ IDEA
+.idea
+
+# macOS
+.DS_Store
