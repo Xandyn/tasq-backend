@@ -101,11 +101,12 @@ def send_email(template='', params={}, subject='', recipients=[]):
     }
     body = json.dumps(data)
 
-    sqs = boto3.resource('sqs', region_name='us-west-2')
+    sqs = boto3.resource('sqs', region_name=current_app.config['SQS_REGION'])
     queue = sqs.get_queue_by_name(
-        QueueName='tasq-email')
+        QueueName=current_app.config['SQS_QUEUE_NAME']
+    )
     queue.send_message(
-        QueueUrl='https://sqs.us-west-2.amazonaws.com/245719447361/tasq-email',
+        QueueUrl=current_app.config['SQS_QUEUE_URL'],
         MessageBody=body,
         DelaySeconds=0,
         MessageAttributes={}

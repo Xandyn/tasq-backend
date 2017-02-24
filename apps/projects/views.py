@@ -76,7 +76,7 @@ class ProjectView(MethodView):
             project = Project.query.get(int(item_id))
         except NoResultFound:
             return jsonify({
-                'message': 'Project not found.'
+                'error': 'Project not found.'
             }), 404
 
         result = ProjectSchema().load(json_data)
@@ -98,7 +98,7 @@ class ProjectView(MethodView):
             project = Project.query.get(int(item_id))
         except NoResultFound:
             return jsonify({
-                'message': 'Project not found.'
+                'error': 'Project not found.'
             }), 404
 
         project.is_deleted = True
@@ -106,6 +106,4 @@ class ProjectView(MethodView):
         db.session.add(project)
         db.session.commit()
 
-        return jsonify({
-            'success': True
-        })
+        return jsonify({})

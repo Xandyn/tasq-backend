@@ -72,6 +72,40 @@ class ProfileView(MethodView):
 class InviteView(MethodView):
     @jwt_required()
     def post(self):
+        """Invite user to project
+
+        ``Example request``:
+
+        .. sourcecode:: http
+
+            POST /invites HTTP/1.1
+            Accept: application/json
+            Content-Type: application/json
+            JWTAuthorization: JWT <jwt_token>
+
+            {
+                "email": "mail@example.com",
+                "project_id": 1
+            }
+
+
+        ``Example response``:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+                "code": "380eca36-4a8d-30f5-969e-ff8363c592f8",
+                "email": "mail@example.com",
+                "id": 1,
+                "invite_link": "http://localhost:3000/invite/380eca36-4a8d-30f5-969e-ff8363c592f8/",
+                "invite_type": "external",
+                "project_id": 1,
+                "status": "pending"
+            }
+        """
         json_data = request.get_json()
 
         invite_type = Invite.TYPE_EXTERNAL
@@ -90,7 +124,18 @@ class InviteView(MethodView):
         if result.errors:
             return jsonify(result.errors), 403
 
-        invite = Invite()
+        try:
+            invite = Invite.query.filter(
+                Invite.email == result.data['email'],
+                Invite.project_id == int(result.data['project_id']),
+                Invite.status != Invite.STATUS_REJECTED
+            ).one()
+            return jsonify({
+                'error': 'This user already invited.'
+            }), 403
+        except NoResultFound:
+            invite = Invite()
+
         parse_json_to_object(invite, result.data)
 
         db.session.add(invite)
@@ -98,12 +143,15 @@ class InviteView(MethodView):
 
         invite_link = "{0}{1}/".format(
             current_app.config['INVITE_REG_LINK'],
-            result.data['code'])
+            result.data['code']
+        )
         send_email(
-            'test.html',
+            'invite.html',
             {
                 "link": invite_link,
-                "user_id": current_identity.id
+                "email": current_identity.email,
+                "username": current_identity.name,
+                "project": invite.project.name
             },
             u"Invite test",
             [result.data['email']]
@@ -118,4 +166,50 @@ class InviteView(MethodView):
 
     @jwt_required()
     def delete(self):
-        return jsonify()
+        """Reject invite
+
+        ``Example request``:
+
+        .. sourcecode:: http
+
+            POST /invites HTTP/1.1
+            Accept: application/json
+            Content-Type: application/json
+            JWTAuthorization: JWT <jwt_token>
+
+            {
+                "email": "mail@example.com",
+                "project_id": 1,
+                "code": "380eca36-4a8d-30f5-969e-ff8363c592f8"
+            }
+
+
+        ``Example response``:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {}
+        """
+        json_data = request.get_json()
+
+        try:
+            invite = Invite.query.filter(
+                Invite.email == json_data['email'],
+                Invite.project_id == int(json_data['project_id']),
+                Invite.status == Invite.STATUS_PENDING,
+                Invite.code == json_data['code']
+            ).one()
+        except NoResultFound:
+            return jsonify({
+                'error': 'Invite doesnt exists.'
+            }), 403
+
+        invite.status = Invite.STATUS_REJECTED
+
+        db.session.add(invite)
+        db.session.commit()
+
+        return jsonify({})
