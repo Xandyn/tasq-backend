@@ -53,13 +53,12 @@ def init():
         from init.jwt_init import jwt
         jwt.init_app(application)
 
-        from apps.users.urls import (
-            users,
-            invites
-        )
-
+        from apps.users.urls import users, invites
         application.register_blueprint(users)
         application.register_blueprint(invites)
+
+        from apps.projects.urls import projects
+        application.register_blueprint(projects)
 
 
 init()

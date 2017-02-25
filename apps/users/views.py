@@ -70,6 +70,19 @@ class ProfileView(MethodView):
 
 
 class InviteView(MethodView):
+    def get(self, code):
+        try:
+            invite = Invite.query.filter(
+                Invite.code == code
+            ).one()
+        except NoResultFound:
+            return jsonify({
+                'error': 'Invite doesnt exists.'
+            }), 403
+
+        data = InviteSchema().dump(invite).data
+        return jsonify(data)
+
     @jwt_required()
     def post(self):
         """Invite user to project
@@ -164,7 +177,89 @@ class InviteView(MethodView):
         data = InviteSchema().dump(invite).data
         return jsonify(data)
 
-    @jwt_required()
+    def put(self):
+        """Accept invite to project
+
+        ``Example request``:
+
+        .. sourcecode:: http
+
+            PUT /invites HTTP/1.1
+            Accept: application/json
+            Content-Type: application/json
+
+            {
+                "code": "380eca36-4a8d-30f5-969e-ff8363c592f8"
+            }
+
+
+        ``Example response``:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+                "code": "380eca36-4a8d-30f5-969e-ff8363c592f8",
+                "email": "mail@example.com",
+                "id": 1,
+                "invite_link": "http://localhost:3000/invite/380eca36-4a8d-30f5-969e-ff8363c592f8/",
+                "invite_type": "external",
+                "project_id": 1,
+                "status": "pending"
+            }
+        """
+        json_data = request.get_json()
+
+        code = json_data.pop('code', None)
+        if code is None:
+            return jsonify({
+                'error': 'Invite code is not provided.'
+            }), 403
+        try:
+            invite = Invite.query.filter(
+                Invite.status == Invite.STATUS_PENDING,
+                Invite.code == code
+            ).one()
+        except NoResultFound:
+            return jsonify({
+                'error': 'Invite is not valid.'
+            }), 403
+
+        try:
+            user = User.query.filter(
+                User.email == invite.email
+            ).one()
+
+            invite_type = Invite.TYPE_INTERNAL
+        except NoResultFound:
+            invite_type = Invite.TYPE_EXTERNAL
+
+            result = UserRegistrationSchema().load(json_data)
+
+            if result.errors:
+                return jsonify(result.errors), 403
+
+            user = User()
+            parse_json_to_object(user, result.data)
+
+            db.session.add(user)
+            db.session.flush()
+
+        invite.invite_type = invite_type
+        invite.status = Invite.STATUS_ACCEPTED
+        db.session.add(invite)
+
+        project = invite.project
+        project.collaborators.append(user)
+        db.session.add(project)
+        db.session.commit()
+
+        return jsonify({
+            'token': generate_jwt_token(str(user.id))
+        })
+
     def delete(self):
         """Reject invite
 
@@ -172,14 +267,12 @@ class InviteView(MethodView):
 
         .. sourcecode:: http
 
-            POST /invites HTTP/1.1
+            DELETE /invites HTTP/1.1
             Accept: application/json
             Content-Type: application/json
             JWTAuthorization: JWT <jwt_token>
 
             {
-                "email": "mail@example.com",
-                "project_id": 1,
                 "code": "380eca36-4a8d-30f5-969e-ff8363c592f8"
             }
 
@@ -195,12 +288,15 @@ class InviteView(MethodView):
         """
         json_data = request.get_json()
 
+        code = json_data.pop('code', None)
+        if code is None:
+            return jsonify({
+                'error': 'Invite code is not provided.'
+            }), 403
         try:
             invite = Invite.query.filter(
-                Invite.email == json_data['email'],
-                Invite.project_id == int(json_data['project_id']),
                 Invite.status == Invite.STATUS_PENDING,
-                Invite.code == json_data['code']
+                Invite.code == code
             ).one()
         except NoResultFound:
             return jsonify({

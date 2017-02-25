@@ -8,15 +8,15 @@ from flask.views import MethodView
 
 # Third-party app imports
 from flask_jwt import jwt_required, current_identity
+from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 
 # Imports from your apps
 from init.database import db
-from init.utils import parse_json_to_object, generate_jwt_token
+from init.utils import parse_json_to_object
 
 from apps.projects.models import Project
-from apps.projects.schemas import ProjectSchema
-from apps.users.models import Invite
+from apps.projects.schemas import ProjectSchema, ProjectCreateSchema
 
 
 __all__ = (
@@ -27,46 +27,37 @@ __all__ = (
 class ProjectView(MethodView):
     @jwt_required()
     def get(self):
-        query = Project.query.filter(
-            Project.owner_id == current_identity.id,
-        )
-        projects = query.filter(
+        invited_projects_ids = current_identity\
+            .invited_projects.with_entities(Project.id)
+        projects = Project.query.filter(
             Project.is_deleted.is_(False)
-        )
-        not_viewed_projects = query.filter(
-            Project.is_deleted.is_(True)
-        )
-
-        quantity = projects.count()
-        not_viewed_quantity = not_viewed_projects.count()
+        ).filter(or_(
+            Project.id.in_(invited_projects_ids),
+            Project.owner_id == current_identity.id
+        ))
 
         data = ProjectSchema(many=True).dump(projects).data
         return jsonify({
-            'quantity': quantity,
-            'not_viewed_quantity': not_viewed_quantity,
+            'quantity': projects.count(),
             'results': data
         })
 
+    @jwt_required()
     def post(self):
         json_data = request.get_json()
-        # collaborators = json_data.pop('collaborators', [])
-        result = ProjectSchema().load(json_data)
+        result = ProjectCreateSchema().load(json_data)
 
         if result.errors:
             return jsonify(result.errors), 403
 
         project = Project()
         parse_json_to_object(project, result.data)
+        project.owner = current_identity
 
         db.session.add(project)
-
-        # if collaborators:
-        #     for collaborator in collaborators:
-        #         inv = Invite()
-
         db.session.commit()
 
-        data = ProjectSchema().dump(project).data
+        data = ProjectCreateSchema().dump(project).data
         return jsonify(data)
 
     @jwt_required()

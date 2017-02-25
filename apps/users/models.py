@@ -13,7 +13,6 @@ from init.database import db, TimestampMixin, BaseModel
 __all__ = (
     'User',
     'Invite'
-    # 'Collaborator',
 )
 
 
@@ -85,44 +84,3 @@ class Invite(BaseModel, TimestampMixin, db.Model):
     email = db.Column(db.String(80), nullable=False)
     invite_link = db.Column(db.String(250))
     code = db.Column(db.String(80))
-
-
-# class Collaborator(BaseModel, TimestampMixin, db.Model):
-#     __tablename__ = 'collaborators'
-#
-#     TYPE_INTERNAL = 'internal'
-#     TYPE_EXTERNAL = 'external'
-#
-#     TYPES = (
-#         TYPE_INTERNAL,
-#         TYPE_EXTERNAL
-#     )
-#
-#     invite_type = db.Column(db.String(16), default=TYPE_EXTERNAL)
-#
-#     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
-#     project = db.relationship(
-#         'Project',
-#         foreign_keys=project_id,
-#         backref=db.backref(
-#             'collaborators',
-#             lazy='dynamic',
-#             cascade="all, delete"
-#         )
-#     )
-#
-#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-#     user = db.relationship(
-#         'User',
-#         foreign_keys=user_id,
-#         backref=db.backref(
-#             'as_collaborator',
-#             lazy='dynamic',
-#             cascade="all, delete"
-#         )
-#     )
-#
-#     email = db.Column(db.String(80), nullable=False)
-#     invite_link = db.Column(db.String(250))
-#     code = db.Column(db.String(80))
-#     is_sent = db.Column(db.Boolean, default=False)
