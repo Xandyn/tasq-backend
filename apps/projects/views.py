@@ -13,12 +13,17 @@ from sqlalchemy.orm.exc import NoResultFound
 from init.database import db
 from init.utils import parse_json_to_object
 
+from apps.users.models import User
 from apps.projects.models import Project
-from apps.projects.schemas import ProjectSchema, ProjectCreateSchema
+from apps.projects.schemas import (
+    ProjectSchema, ProjectCreateSchema,
+    CollaboratorDeleteSchema
+)
 
 
 __all__ = (
     'ProjectView',
+    'CollaboratorView'
 )
 
 
@@ -62,7 +67,7 @@ class ProjectView(MethodView):
     def put(self, item_id):
         json_data = request.get_json()
         try:
-            project = Project.query.get(int(item_id))
+            project = Project.query.get(item_id)
         except NoResultFound:
             return jsonify({
                 'error': 'Project not found.'
@@ -84,13 +89,45 @@ class ProjectView(MethodView):
     @jwt_required()
     def delete(self, item_id):
         try:
-            project = Project.query.get(int(item_id))
+            project = Project.query.get(item_id)
         except NoResultFound:
             return jsonify({
                 'error': 'Project not found.'
             }), 404
 
         project.is_deleted = True
+
+        db.session.add(project)
+        db.session.commit()
+
+        return jsonify({})
+
+
+class CollaboratorView(MethodView):
+    @jwt_required()
+    def delete(self):
+        json_data = request.get_json()
+        result = CollaboratorDeleteSchema().load(json_data)
+
+        if result.errors:
+            return jsonify(result.errors), 403
+
+        project = Project.query.get(result.data['project_id'])
+        if current_identity.id != project.owner_id:
+            return jsonify({
+                'error': 'You should be owner of the project.'
+            }), 403
+
+        try:
+            collaborator = project.collaborators.filter(
+                User.id == result.data['collaborator_id']
+            ).one()
+        except NoResultFound:
+            return jsonify({
+                'error': 'Invalid collaborator.'
+            }), 403
+
+        project.collaborators.remove(collaborator)
 
         db.session.add(project)
         db.session.commit()

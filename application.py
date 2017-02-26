@@ -55,8 +55,9 @@ def init():
         application.register_blueprint(users)
         application.register_blueprint(invites)
 
-        from apps.projects.urls import projects
+        from apps.projects.urls import projects, collaborators
         application.register_blueprint(projects)
+        application.register_blueprint(collaborators)
 
 
 init()

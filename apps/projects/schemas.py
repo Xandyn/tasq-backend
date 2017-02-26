@@ -44,3 +44,8 @@ class ProjectSchema(Schema):
 class ProjectCreateSchema(Schema):
     name = fields.String(required=True)
     is_shared = fields.Boolean()
+
+
+class CollaboratorDeleteSchema(Schema):
+    project_id = fields.Integer(load_only=True, required=True)
+    collaborator_id = fields.Integer(load_only=True, required=True)

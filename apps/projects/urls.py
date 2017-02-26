@@ -23,3 +23,13 @@ projects.add_url_rule(
     view_func=projects_view,
     methods=['PUT', 'DELETE']
 )
+
+collaborators = Blueprint('collaborators', __name__, url_prefix='/projects/collaborators')
+collaborators_view = CollaboratorView.as_view('collaborators_view')
+
+
+collaborators.add_url_rule(
+    '',
+    view_func=collaborators_view,
+    methods=['DELETE']
+)

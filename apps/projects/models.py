@@ -8,6 +8,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 # Imports from your apps
 from init.database import db, TimestampMixin, BaseModel
 
+
 __all__ = (
     'Project',
 )
@@ -38,7 +39,8 @@ class Project(BaseModel, TimestampMixin, db.Model):
             'invited_projects',
             lazy='dynamic',
             cascade="all, delete"
-        )
+        ),
+        lazy='dynamic'
     )
 
     name = db.Column(db.String(80), nullable=False)
