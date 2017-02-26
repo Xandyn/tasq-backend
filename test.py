@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from unittest import TestCase
 from flask_webtest import TestApp
 from flask_pytest import FlaskPytest

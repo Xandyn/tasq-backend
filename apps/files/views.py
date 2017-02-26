@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Stdlib imports
 # Core Flask imports
 # Third-party app imports

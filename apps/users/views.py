@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Stdlib imports
 
 # Core Flask imports
@@ -201,13 +199,7 @@ class InviteView(MethodView):
             Content-Type: application/json
 
             {
-                "code": "380eca36-4a8d-30f5-969e-ff8363c592f8",
-                "email": "mail@example.com",
-                "id": 1,
-                "invite_link": "http://localhost:3000/invite/380eca36-4a8d-30f5-969e-ff8363c592f8/",
-                "invite_type": "external",
-                "project_id": 1,
-                "status": "pending"
+                "token": <jwt_token>
             }
         """
         json_data = request.get_json()

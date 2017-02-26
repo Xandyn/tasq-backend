@@ -1,4 +1,3 @@
-# coding: utf-8
 from celery import Celery
 from init.flask_init import application
 
