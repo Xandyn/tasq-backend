@@ -48,10 +48,10 @@ class Task(BaseModel, TimestampMixin, db.Model):
 
     body = db.Column(db.String(80), nullable=False)
     note = db.Column(db.Text)
-    notification_date = db.Column(db.DateTime)
+    notification_date = db.Column(db.DateTime(timezone=True))
 
     is_completed = db.Column(db.Boolean, default=False)
-    completion_date = db.Column(db.DateTime)
+    completion_date = db.Column(db.DateTime(timezone=True))
     completed_by_user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id')
