@@ -60,7 +60,7 @@ class ProjectView(MethodView):
         db.session.add(project)
         db.session.commit()
 
-        data = ProjectCreateSchema().dump(project).data
+        data = ProjectSchema().dump(project).data
         return jsonify(data)
 
     @jwt_required()
