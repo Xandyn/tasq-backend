@@ -16,8 +16,8 @@ from init.utils import parse_json_to_object
 from apps.users.models import User
 from apps.projects.models import Project
 from apps.projects.schemas import (
-    ProjectSchema, ProjectCreateSchema,
-    CollaboratorDeleteSchema
+    ProjectSchema, ProjectCreateSchema, CollaboratorDeleteSchema,
+    ProjectTasksOrderUpdateSchema
 )
 
 
@@ -73,7 +73,10 @@ class ProjectView(MethodView):
                 'error': 'Project not found.'
             }), 404
 
-        result = ProjectSchema().load(json_data)
+        if current_identity.id == project.owner_id:
+            result = ProjectSchema().load(json_data)
+        else:
+            result = ProjectTasksOrderUpdateSchema().load(json_data)
 
         if result.errors:
             return jsonify(result.errors), 403
@@ -91,6 +94,11 @@ class ProjectView(MethodView):
         try:
             project = Project.query.get(item_id)
         except NoResultFound:
+            return jsonify({
+                'error': 'Project not found.'
+            }), 404
+
+        if current_identity.id != project.owner_id:
             return jsonify({
                 'error': 'Project not found.'
             }), 404

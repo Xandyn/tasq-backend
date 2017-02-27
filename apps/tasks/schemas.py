@@ -1,14 +1,11 @@
 # Stdlib imports
 
 # Core Flask imports
-from flask_jwt import current_identity
 
 # Third-party app imports
 from marshmallow import (
     Schema,
     fields,
-    validates,
-    ValidationError
 )
 
 # Imports from your apps
@@ -47,10 +44,3 @@ class TaskCreateSchema(Schema):
     project_id = fields.Integer(required=True)
 
     assigned_to_user_id = fields.Integer()
-
-    @validates('project_id')
-    def validate_project_id(self, project_id):
-        projects_ids = [x.id for x in current_identity.projects]
-        projects_ids += [x.id for x in current_identity.invited_projects]
-        if project_id not in projects_ids:
-            raise ValidationError('Project doesnt exists.')

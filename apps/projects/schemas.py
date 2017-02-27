@@ -46,6 +46,10 @@ class ProjectCreateSchema(Schema):
     is_shared = fields.Boolean()
 
 
+class ProjectTasksOrderUpdateSchema(Schema):
+    tasks_order = fields.List(fields.Integer(), default=[])
+
+
 class CollaboratorDeleteSchema(Schema):
     project_id = fields.Integer(load_only=True, required=True)
     collaborator_id = fields.Integer(load_only=True, required=True)

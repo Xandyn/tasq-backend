@@ -49,9 +49,20 @@ class Project(BaseModel, TimestampMixin, db.Model):
     is_deleted = db.Column(db.Boolean, default=False)
 
 
-collaborators = db.Table(
-    'collaborators',
-    db.Column('project_id', db.Integer, db.ForeignKey('projects.id'), nullable=False),
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), nullable=False),
-    db.PrimaryKeyConstraint('project_id', 'user_id')
-)
+class Collaborators(db.Model):
+    __tablename__ = 'collaborators'
+
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    __table_args__ = (
+        db.PrimaryKeyConstraint('project_id', 'user_id'),
+        {},
+    )
+
+# collaborators = db.Table(
+#     'collaborators',
+#     db.Column('project_id', db.Integer, db.ForeignKey('projects.id'), nullable=False),
+#     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), nullable=False),
+#     db.PrimaryKeyConstraint('project_id', 'user_id')
+# )

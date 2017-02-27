@@ -22,5 +22,5 @@ tasks.add_url_rule(
 tasks.add_url_rule(
     '/<int:item_id>',
     view_func=tasks_view,
-    methods=['PUT', 'DELETE']
+    methods=['GET', 'PUT', 'DELETE']
 )
