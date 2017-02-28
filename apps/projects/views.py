@@ -69,9 +69,7 @@ class ProjectView(MethodView):
         try:
             project = Project.query.get(item_id)
         except NoResultFound:
-            return jsonify({
-                'error': 'Project not found.'
-            }), 404
+            return jsonify({'error': 'Project not found.'}), 404
 
         if current_identity.id == project.owner_id:
             result = ProjectSchema().load(json_data)
@@ -94,14 +92,10 @@ class ProjectView(MethodView):
         try:
             project = Project.query.get(item_id)
         except NoResultFound:
-            return jsonify({
-                'error': 'Project not found.'
-            }), 404
+            return jsonify({'error': 'Project not found.'}), 404
 
         if current_identity.id != project.owner_id:
-            return jsonify({
-                'error': 'Project not found.'
-            }), 404
+            return jsonify({'error': 'Project not found.'}), 404
 
         project.is_deleted = True
 
@@ -122,18 +116,14 @@ class CollaboratorView(MethodView):
 
         project = Project.query.get(result.data['project_id'])
         if current_identity.id != project.owner_id:
-            return jsonify({
-                'error': 'You should be owner of the project.'
-            }), 403
+            return jsonify({'error': 'You should be owner of the project.'}), 403
 
         try:
             collaborator = project.collaborators.filter(
                 User.id == result.data['collaborator_id']
             ).one()
         except NoResultFound:
-            return jsonify({
-                'error': 'Invalid collaborator.'
-            }), 403
+            return jsonify({'error': 'Invalid collaborator.'}), 403
 
         project.collaborators.remove(collaborator)
 

@@ -48,9 +48,7 @@ class ProfileView(MethodView):
         db.session.add(user)
         db.session.commit()
 
-        return jsonify({
-            'token': generate_jwt_token(str(user.id))
-        })
+        return jsonify({'token': generate_jwt_token(str(user.id))})
 
     @jwt_required()
     def put(self):
@@ -76,9 +74,7 @@ class InviteView(MethodView):
                 Invite.code == code
             ).one()
         except NoResultFound:
-            return jsonify({
-                'error': 'Invite doesnt exists.'
-            }), 403
+            return jsonify({'error': 'Invite doesnt exists.'}), 403
 
         data = InviteSchema().dump(invite).data
         return jsonify(data)
@@ -122,10 +118,9 @@ class InviteView(MethodView):
         json_data = request.get_json()
 
         invite_type = Invite.TYPE_EXTERNAL
-        try:
-            user = User.query.filter(
-                User.email == json_data['email']).one()
-        except NoResultFound:
+        user = User.query.filter(
+            User.email == json_data['email']).first()
+        if user:
             invite_type = Invite.TYPE_INTERNAL
         json_data['invite_type'] = invite_type
 
@@ -140,9 +135,7 @@ class InviteView(MethodView):
                 Invite.project_id == int(result.data['project_id']),
                 Invite.status != Invite.STATUS_REJECTED
             ).one()
-            return jsonify({
-                'error': 'This user already invited.'
-            }), 403
+            return jsonify({'error': 'This user already invited.'}), 403
         except NoResultFound:
             invite = Invite()
 
@@ -205,18 +198,14 @@ class InviteView(MethodView):
 
         code = json_data.pop('code', None)
         if code is None:
-            return jsonify({
-                'error': 'Invite code is not provided.'
-            }), 403
+            return jsonify({'error': 'Invite code is not provided.'}), 403
         try:
             invite = Invite.query.filter(
                 Invite.status == Invite.STATUS_PENDING,
                 Invite.code == code
             ).one()
         except NoResultFound:
-            return jsonify({
-                'error': 'Invite is not valid.'
-            }), 403
+            return jsonify({'error': 'Invite is not valid.'}), 403
 
         try:
             user = User.query.filter(
@@ -247,9 +236,7 @@ class InviteView(MethodView):
         db.session.add(project)
         db.session.commit()
 
-        return jsonify({
-            'token': generate_jwt_token(str(user.id))
-        })
+        return jsonify({'token': generate_jwt_token(str(user.id))})
 
     def delete(self):
         """Reject invite
@@ -281,18 +268,14 @@ class InviteView(MethodView):
 
         code = json_data.pop('code', None)
         if code is None:
-            return jsonify({
-                'error': 'Invite code is not provided.'
-            }), 403
+            return jsonify({'error': 'Invite code is not provided.'}), 403
         try:
             invite = Invite.query.filter(
                 Invite.status == Invite.STATUS_PENDING,
                 Invite.code == code
             ).one()
         except NoResultFound:
-            return jsonify({
-                'error': 'Invite doesnt exists.'
-            }), 403
+            return jsonify({'error': 'Invite doesnt exists.'}), 403
 
         invite.status = Invite.STATUS_REJECTED
 

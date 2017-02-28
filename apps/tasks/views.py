@@ -58,9 +58,7 @@ class TaskView(MethodView):
         try:
             project = Project.query.get(item_id)
         except NoResultFound:
-            return jsonify({
-                'error': 'Project not found.'
-            }), 404
+            return jsonify({'error': 'Project not found.'}), 404
 
         if not self.is_project_member(project):
             return jsonify({'error': 'Project not found.'}), 404
@@ -88,9 +86,7 @@ class TaskView(MethodView):
         try:
             project = Project.query.get(result.data['project_id'])
         except NoResultFound:
-            return jsonify({
-                'error': 'Project not found.'
-            }), 404
+            return jsonify({'error': 'Project not found.'}), 404
 
         if not self.is_project_member(project):
             return jsonify({'error': 'Project not found.'}), 404
@@ -118,9 +114,7 @@ class TaskView(MethodView):
         try:
             task = Task.query.get(item_id)
         except NoResultFound:
-            return jsonify({
-                'error': 'Task not found.'
-            }), 404
+            return jsonify({'error': 'Task not found.'}), 404
 
         result = TaskSchema().load(json_data)
 
@@ -144,9 +138,7 @@ class TaskView(MethodView):
         try:
             task = Task.query.get(item_id)
         except NoResultFound:
-            return jsonify({
-                'error': 'Task not found.'
-            }), 404
+            return jsonify({'error': 'Task not found.'}), 404
 
         project = task.project
         if not self.is_project_member(project):

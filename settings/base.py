@@ -3,7 +3,7 @@ from settings.common import *
 
 LOG_TO_FILE = False
 DEBUG = True
-NEED_LINT = False
+NEED_LINT = True
 ADMIN_ENABLED = DEBUG
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
