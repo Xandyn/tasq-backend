@@ -65,7 +65,7 @@ class Task(BaseModel, TimestampMixin, db.Model):
             cascade="all, delete"
         )
     )
-    completed_in = db.Column(db.DateTime(timezone=True))
+    completed_at = db.Column(db.DateTime(timezone=True))
 
     assigned_to_user_id = db.Column(
         db.Integer,

@@ -24,7 +24,7 @@ class TaskSchema(Schema):
 
     is_completed = fields.Boolean()
     completed_by_user_id = fields.Integer()
-    completed_in = fields.DateTime()
+    completed_at = fields.DateTime()
 
     assigned_to_user_id = fields.Integer()
 
