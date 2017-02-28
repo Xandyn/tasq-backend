@@ -12,6 +12,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from init.database import db
 from init.utils import parse_json_to_object, generate_jwt_token, send_email
 
+from apps.files.models import File
+
 from apps.users.models import User, Invite
 from apps.users.schemas import (
     UserSchema,
@@ -124,9 +126,6 @@ class InviteView(MethodView):
             user = User.query.filter(
                 User.email == json_data['email']).one()
         except NoResultFound:
-            user = None
-
-        if user:
             invite_type = Invite.TYPE_INTERNAL
         json_data['invite_type'] = invite_type
 

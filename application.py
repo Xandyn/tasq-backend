@@ -12,11 +12,6 @@ from flask_cors import CORS
 # Imports from your apps
 from init.database import db
 
-from apps.users.models import *
-from apps.files.models import *
-from apps.tasks.models import *
-from apps.projects.models import *
-
 
 application = Flask(
     __name__,

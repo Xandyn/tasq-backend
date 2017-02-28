@@ -62,14 +62,8 @@ class TaskView(MethodView):
                 'error': 'Project not found.'
             }), 404
 
-        # TODO Repeat
-        is_collaborator = project.collaborators.filter(
-            User.id == current_identity.id
-        ).first()
-        if current_identity.id != project.owner_id and is_collaborator is None:
-            return jsonify({
-                'error': 'Project not found.'
-            }), 404
+        if not self.is_project_member(project):
+            return jsonify({'error': 'Project not found.'}), 404
 
         tasks = project.tasks
         completed_tasks = tasks.filter(
@@ -98,14 +92,8 @@ class TaskView(MethodView):
                 'error': 'Project not found.'
             }), 404
 
-        # TODO Repeat
-        is_collaborator = project.collaborators.filter(
-            User.id == current_identity.id
-        ).first()
-        if current_identity.id != project.owner_id and is_collaborator is None:
-            return jsonify({
-                'error': 'Project not found.'
-            }), 404
+        if not self.is_project_member(project):
+            return jsonify({'error': 'Project not found.'}), 404
 
         task = Task()
         parse_json_to_object(task, result.data)
@@ -139,15 +127,9 @@ class TaskView(MethodView):
         if result.errors:
             return jsonify(result.errors), 403
 
-        # TODO Repeat
         project = task.project
-        is_collaborator = project.collaborators.filter(
-            User.id == current_identity.id
-        ).first()
-        if current_identity.id != project.owner_id and is_collaborator is None:
-            return jsonify({
-                'error': 'Project not found.'
-            }), 404
+        if not self.is_project_member(project):
+            return jsonify({'error': 'Project not found.'}), 404
 
         parse_json_to_object(task, result.data)
 
@@ -166,18 +148,26 @@ class TaskView(MethodView):
                 'error': 'Task not found.'
             }), 404
 
-        # TODO Repeat
         project = task.project
-        is_collaborator = project.collaborators.filter(
-            User.id == current_identity.id
-        ).first()
-        if current_identity.id != project.owner_id and is_collaborator is None:
-            return jsonify({
-                'error': 'Project not found.'
-            }), 404
+        if not self.is_project_member(project):
+            return jsonify({'error': 'Project not found.'}), 404
 
         task.is_deleted = True
+
+        tasks_order = list(project.tasks_order)
+        tasks_order.remove(task.id)
+        parse_json_to_object(project, {'tasks_order': tasks_order})
+
         db.session.add(task)
         db.session.commit()
 
         return jsonify({})
+
+    def is_project_member(self, project):
+        is_member = False
+        is_collaborator = project.collaborators.filter(
+            User.id == current_identity.id
+        ).first()
+        if current_identity.id == project.owner_id or is_collaborator is not None:
+            is_member = True
+        return is_member

@@ -46,7 +46,7 @@ class Task(BaseModel, TimestampMixin, db.Model):
         )
     )
 
-    body = db.Column(db.String(80), nullable=False)
+    text = db.Column(db.String(80), nullable=False)
     note = db.Column(db.Text)
     notification_date = db.Column(db.DateTime(timezone=True))
 
@@ -65,6 +65,7 @@ class Task(BaseModel, TimestampMixin, db.Model):
             cascade="all, delete"
         )
     )
+    completed_in = db.Column(db.DateTime(timezone=True))
 
     assigned_to_user_id = db.Column(
         db.Integer,
