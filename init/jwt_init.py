@@ -73,6 +73,18 @@ def authenticate(username, password):
         return
 
 
+@jwt.jwt_error_handler
+def error_handler(error):
+    result = {
+        'status_code': error.status_code,
+        'error': error.error,
+        'description': error.description
+    }
+    if error.status_code == 401:
+        result['email'] = error.description
+    return jsonify(result), error.status_code, error.headers
+
+
 @jwt.identity_handler
 def identify(payload):
     try:
