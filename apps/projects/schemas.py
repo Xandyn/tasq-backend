@@ -41,6 +41,10 @@ class ProjectSchema(Schema):
         ]
 
 
+class ProjectSchemaAll(ProjectSchema):
+    tasks = fields.Nested('TaskSchemaAll', many=True)
+
+
 class ProjectCreateSchema(Schema):
     name = fields.String(required=True)
     is_shared = fields.Boolean()

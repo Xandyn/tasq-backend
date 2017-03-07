@@ -6,6 +6,7 @@ from flask.views import MethodView
 
 # Third-party app imports
 from flask_jwt import jwt_required, current_identity
+from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 
 # Imports from your apps
@@ -21,6 +22,8 @@ from apps.users.schemas import (
     UserNameUpdateSchema,
     InviteSchema
 )
+from apps.projects.models import Project
+from apps.projects.schemas import ProjectSchemaAll
 
 
 __all__ = (
@@ -33,6 +36,20 @@ class ProfileView(MethodView):
     @jwt_required()
     def get(self):
         data = UserSchema().dump(current_identity).data
+
+        args = request.args
+        if args.get('all') == 'true':
+            invited_projects_ids = current_identity \
+                .invited_projects.with_entities(Project.id)
+            projects = Project.query.filter(
+                Project.is_deleted.is_(False)
+            ).filter(or_(
+                Project.id.in_(invited_projects_ids),
+                Project.owner_id == current_identity.id
+            ))
+            projects_data = ProjectSchemaAll(many=True).dump(projects).data
+            data['projects'] = projects_data
+
         return jsonify(data)
 
     def post(self):

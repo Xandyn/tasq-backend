@@ -11,7 +11,7 @@ from marshmallow import (
 # Imports from your apps
 
 
-class TaskSchema(Schema):
+class BaseTaskSchema(Schema):
     id = fields.Integer(dump_only=True)
     text = fields.String()
     note = fields.Raw()
@@ -19,16 +19,24 @@ class TaskSchema(Schema):
     notification_date = fields.DateTime()
     completion_date = fields.DateTime()
 
-    creator_id = fields.Integer(dump_only=True)
-    project_id = fields.Integer(dump_only=True)
-
     is_completed = fields.Boolean()
-    completed_by_user_id = fields.Integer()
     completed_at = fields.DateTime()
 
+    is_deleted = fields.Boolean(load_only=True)
+
+
+class TaskSchema(BaseTaskSchema):
+    creator_id = fields.Integer(dump_only=True)
+    project_id = fields.Integer(dump_only=True)
+    completed_by_user_id = fields.Integer()
     assigned_to_user_id = fields.Integer()
 
-    is_deleted = fields.Boolean(load_only=True)
+
+class TaskSchemaAll(BaseTaskSchema):
+    creator = fields.Integer(attribute='creator_id')
+    project = fields.Integer(attribute='project_id')
+    completed_by_user = fields.Integer(attribute='completed_by_user_id')
+    assigned_to_user = fields.Integer(attribute='assigned_to_user_id')
 
 
 class TaskCreateSchema(Schema):
