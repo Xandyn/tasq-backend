@@ -66,9 +66,8 @@ class ProjectView(MethodView):
     @jwt_required()
     def put(self, item_id):
         json_data = request.get_json()
-        try:
-            project = Project.query.get(item_id)
-        except NoResultFound:
+        project = Project.query.get(item_id)
+        if project is None:
             return jsonify({'error': 'Project not found.'}), 404
 
         if current_identity.id == project.owner_id:
@@ -89,9 +88,8 @@ class ProjectView(MethodView):
 
     @jwt_required()
     def delete(self, item_id):
-        try:
-            project = Project.query.get(item_id)
-        except NoResultFound:
+        project = Project.query.get(item_id)
+        if project is None:
             return jsonify({'error': 'Project not found.'}), 404
 
         if current_identity.id != project.owner_id:
@@ -115,6 +113,8 @@ class CollaboratorView(MethodView):
             return jsonify(result.errors), 403
 
         project = Project.query.get(result.data['project_id'])
+        if project is None:
+            return jsonify({'error': 'Project not found.'}), 404
         if current_identity.id != project.owner_id:
             return jsonify({'error': 'You should be owner of the project.'}), 403
 

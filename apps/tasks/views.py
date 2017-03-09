@@ -7,7 +7,6 @@ from flask.views import MethodView
 # Third-party app imports
 from flask_jwt import jwt_required, current_identity
 from sqlalchemy import or_
-from sqlalchemy.orm.exc import NoResultFound
 
 # Imports from your apps
 from init.database import db
@@ -55,9 +54,8 @@ class TaskView(MethodView):
                 'results': data
             })
 
-        try:
-            project = Project.query.get(item_id)
-        except NoResultFound:
+        project = Project.query.get(item_id)
+        if project is None:
             return jsonify({'error': 'Project not found.'}), 404
 
         if not self.is_project_member(project):
@@ -83,9 +81,8 @@ class TaskView(MethodView):
         if result.errors:
             return jsonify(result.errors), 403
 
-        try:
-            project = Project.query.get(result.data['project_id'])
-        except NoResultFound:
+        project = Project.query.get(result.data['project_id'])
+        if project is None:
             return jsonify({'error': 'Project not found.'}), 404
 
         if not self.is_project_member(project):
@@ -111,9 +108,8 @@ class TaskView(MethodView):
     @jwt_required()
     def put(self, item_id):
         json_data = request.get_json()
-        try:
-            task = Task.query.get(item_id)
-        except NoResultFound:
+        task = Task.query.get(item_id)
+        if task is None:
             return jsonify({'error': 'Task not found.'}), 404
 
         result = TaskSchema().load(json_data)
@@ -135,9 +131,8 @@ class TaskView(MethodView):
 
     @jwt_required()
     def delete(self, item_id):
-        try:
-            task = Task.query.get(item_id)
-        except NoResultFound:
+        task = Task.query.get(item_id)
+        if task is None:
             return jsonify({'error': 'Task not found.'}), 404
 
         project = task.project

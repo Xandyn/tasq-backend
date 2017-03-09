@@ -26,17 +26,10 @@ class BaseTaskSchema(Schema):
 
 
 class TaskSchema(BaseTaskSchema):
-    creator_id = fields.Integer(dump_only=True)
-    project_id = fields.Integer(dump_only=True)
-    completed_by_user_id = fields.Integer()
-    assigned_to_user_id = fields.Integer()
-
-
-class TaskSchemaAll(BaseTaskSchema):
-    creator = fields.Integer(attribute='creator_id')
-    project = fields.Integer(attribute='project_id')
-    completed_by_user = fields.Integer(attribute='completed_by_user_id')
-    assigned_to_user = fields.Integer(attribute='assigned_to_user_id')
+    creator = fields.Integer(attribute='creator_id', dump_only=True)
+    project = fields.Integer(attribute='project_id', dump_only=True)
+    completed_by_user = fields.Integer(attribute='completed_by_user_id', allow_none=True)
+    assigned_to_user = fields.Integer(attribute='assigned_to_user_id', allow_none=True)
 
 
 class TaskCreateSchema(Schema):
