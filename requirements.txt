@@ -17,3 +17,4 @@ ipython==5.2.2
 konch==2.3.0
 Flask-WebTest==0.0.8
 flask-pytest==0.0.5
+Faker==0.7.9
