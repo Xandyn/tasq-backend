@@ -13,10 +13,12 @@ from apps.users.models import Invite
 from apps.users.schemas import UserSchema
 
 
-class ProjectSchema(Schema):
+class ProjectBaseSchema(Schema):
     id = fields.Integer(dump_only=True)
     name = fields.String()
 
+
+class ProjectSchema(ProjectBaseSchema):
     owner = fields.Nested(UserSchema, dump_only=True)
 
     tasks_order = fields.List(fields.Integer(), default=[])
