@@ -16,8 +16,7 @@ from init.utils import parse_json_to_object
 from apps.users.models import User
 from apps.projects.models import Project
 from apps.projects.schemas import (
-    ProjectSchema, ProjectCreateSchema, CollaboratorDeleteSchema,
-    ProjectTasksOrderUpdateSchema
+    ProjectSchema, ProjectCreateSchema, CollaboratorDeleteSchema
 )
 
 
@@ -37,7 +36,7 @@ class ProjectView(MethodView):
         ).filter(or_(
             Project.id.in_(invited_projects_ids),
             Project.owner_id == current_identity.id
-        ))
+        )).order_by(Project.created_at.desc())
 
         data = ProjectSchema(many=True).dump(projects).data
         return jsonify({
@@ -73,7 +72,7 @@ class ProjectView(MethodView):
         if current_identity.id == project.owner_id:
             result = ProjectSchema().load(json_data)
         else:
-            result = ProjectTasksOrderUpdateSchema().load(json_data)
+            result = ProjectSchema(exclude=('is_deleted', )).load(json_data)
 
         if result.errors:
             return jsonify(result.errors), 403
