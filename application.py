@@ -30,7 +30,11 @@ manager = Manager(application)
 manager.add_command('db', MigrateCommand)
 
 
-application.config.from_envvar('TASQ_SETTINGS', True)
+environment_variable = 'TASQ_SETTINGS'
+if os.path.isfile(os.environ.get(environment_variable, '')):
+    application.config.from_envvar(environment_variable, True)
+else:
+    application.config.from_object('settings.base')
 application.config['BUNDLE_ERRORS'] = True
 application.config['BASE_DIR'] = os.path.dirname(os.path.abspath(__file__))
 application.config['CORS_HEADERS'] = 'X-Requested-With, Content-Type'
@@ -58,6 +62,10 @@ def init():
         application.register_blueprint(tasks)
 
 
+if application.config['DEBUG']:
+    from init.mail_init import mail
+
+    mail.init_app(application)
 init()
 
 

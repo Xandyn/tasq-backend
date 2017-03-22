@@ -12,7 +12,10 @@ import jwt
 import boto3
 import hashlib
 
+from flask_mail import Message
+
 # Imports from your apps
+from init.mail_init import mail
 
 
 def generate_jwt_token(user_id):
@@ -91,6 +94,16 @@ def send_email(template='', params={}, subject='', recipients=[]):
         template,
         **params
     )
+
+    if current_app.config['DEBUG']:
+        msg = Message(subject, recipients=recipients)
+        msg.html = msg_html
+        try:
+            mail.send(msg)
+        except Exception as e:
+            print(e)
+        return
+
     data = {
         "html": msg_html,
         "subject": subject,
