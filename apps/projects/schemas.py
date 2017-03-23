@@ -38,7 +38,7 @@ class ProjectSchema(ProjectBaseSchema):
         ).all()
 
         return [
-            {'email': invite.email, 'type': invite.invite_type}
+            {'email': invite.email, 'code': invite.code}
             for invite in invites
         ]
 

@@ -146,13 +146,23 @@ class InviteView(MethodView):
         if result.errors:
             return jsonify(result.errors), 403
 
+        project = Project.query.get(int(result.data['project_id']))
+        if project is None:
+            return jsonify({'error': 'Project not found.'}), 404
+
+        if project.owner.email == result.data['email']:
+            return jsonify({'email': 'This user already invited.'}), 403
+
+        if result.data['email'] in [collab.email for collab in project.collaborators.all()]:
+            return jsonify({'email': 'This user already invited.'}), 403
+
         try:
             invite = Invite.query.filter(
                 Invite.email == result.data['email'],
                 Invite.project_id == int(result.data['project_id']),
                 Invite.status != Invite.STATUS_REJECTED
             ).one()
-            return jsonify({'error': 'This user already invited.'}), 403
+            return jsonify({'email': 'This user already invited.'}), 403
         except NoResultFound:
             invite = Invite()
 
