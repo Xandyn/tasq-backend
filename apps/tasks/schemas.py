@@ -14,13 +14,13 @@ from marshmallow import (
 class TaskBaseSchema(Schema):
     id = fields.Integer(dump_only=True)
     text = fields.String()
-    note = fields.Raw()
+    note = fields.Raw(allow_none=True)
 
-    notification_date = fields.DateTime()
-    completion_date = fields.DateTime()
+    notification_date = fields.DateTime(allow_none=True)
+    completion_date = fields.DateTime(allow_none=True)
 
-    is_completed = fields.Boolean()
-    completed_at = fields.DateTime()
+    is_completed = fields.Boolean(allow_none=True)
+    completed_at = fields.DateTime(allow_none=True)
 
     is_deleted = fields.Boolean(load_only=True)
 
@@ -36,9 +36,9 @@ class TaskCreateSchema(Schema):
     text = fields.String(required=True)
     note = fields.Raw()
 
-    notification_date = fields.DateTime()
-    completion_date = fields.DateTime()
+    notification_date = fields.DateTime(allow_none=True)
+    completion_date = fields.DateTime(allow_none=True)
 
     project_id = fields.Integer(required=True)
 
-    assigned_to_user_id = fields.Integer()
+    assigned_to_user_id = fields.Integer(allow_none=True)
