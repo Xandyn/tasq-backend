@@ -1,4 +1,5 @@
 # Stdlib imports
+import datetime
 
 # Core Flask imports
 from flask import jsonify, request
@@ -121,6 +122,13 @@ class TaskView(MethodView):
         if not self.is_project_member(project):
             return jsonify({'error': 'Project not found.'}), 404
 
+        schema_data = result.data
+        if schema_data.get('is_completed') is True:
+            schema_data['completed_at'] = str(datetime.datetime.now())
+            schema_data['completed_by_user_id'] = current_identity.id
+        if schema_data.get('is_completed') is False:
+            schema_data['completed_at'] = None
+            schema_data['completed_by_user_id'] = None
         parse_json_to_object(task, result.data)
 
         db.session.add(task)
