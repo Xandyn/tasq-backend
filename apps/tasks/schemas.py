@@ -22,6 +22,8 @@ class TaskBaseSchema(Schema):
     is_completed = fields.Boolean(allow_none=True)
     completed_at = fields.DateTime(allow_none=True)
 
+    assigned_to_user_id = fields.Integer(allow_none=True)
+
     is_deleted = fields.Boolean(load_only=True)
 
 
