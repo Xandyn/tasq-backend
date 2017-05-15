@@ -1,5 +1,10 @@
 # tasq-backend
 
+## Things todo
+
+* **Notification system on Redis & Celery**
+* **Chat on SocketIO**
+
 ### Setup
 Install packages:
 ```sh
